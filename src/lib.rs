@@ -18,7 +18,7 @@ pub fn to_vec<T: Sized>(value: &T) -> Result<Vec<u8>, Error>
 where
     T: serde::Serialize,
 {
-    let mut writer = Vec::with_capacity(128);
+    let mut writer = Vec::new();
     to_writer(&mut writer, value)?;
     Ok(writer)
 }
@@ -31,9 +31,9 @@ where
 }
 
 pub fn canonicalize(val: &serde_json::Value) -> Result<Vec<u8>, Error> {
-    let cj = convert(val)?;
+    let cv = from_value(val)?;
     let mut buf = Vec::new();
-    let _ = cj.write(&mut buf);
+    let _ = cv.write(&mut buf);
     Ok(buf)
 }
 
@@ -110,7 +110,7 @@ impl CanonicalValue {
     }
 }
 
-fn convert(val: &Value) -> Result<CanonicalValue, Error> {
+fn from_value(val: &Value) -> Result<CanonicalValue, Error> {
     match *val {
         Value::Null => Ok(CanonicalValue::Null),
         Value::Bool(b) => Ok(CanonicalValue::Bool(b)),
@@ -126,7 +126,7 @@ fn convert(val: &Value) -> Result<CanonicalValue, Error> {
         }
         Value::Array(ref arr) => {
             let mut out = Vec::new();
-            for res in arr.iter().map(|v| convert(v)) {
+            for res in arr.iter().map(|v| from_value(v)) {
                 out.push(res?)
             }
             Ok(CanonicalValue::Array(out))
@@ -134,7 +134,7 @@ fn convert(val: &Value) -> Result<CanonicalValue, Error> {
         Value::Object(ref obj) => {
             let mut out = BTreeMap::new();
             for (k, v) in obj.iter() {
-                let _ = out.insert(k.clone(), convert(v)?);
+                let _ = out.insert(k.clone(), from_value(v)?);
             }
             Ok(CanonicalValue::Object(out))
         }
