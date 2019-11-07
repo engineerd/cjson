@@ -6,6 +6,5 @@
     "10.1": 1.01E1,
     "emoji": "😃",
     "escape": "\u001B",
-    "lone surrogate": "\uDEAD",
     "whitespace": " \t\n\r"
 }

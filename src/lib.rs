@@ -3,6 +3,9 @@ use serde_json::Value;
 use std::collections::BTreeMap;
 use std::io;
 
+#[cfg(test)]
+mod tests;
+
 pub fn to_writer<W, T: Sized>(mut writer: W, value: &T) -> Result<(), Error>
 where
     W: io::Write,
@@ -30,7 +33,7 @@ where
     Ok(unsafe { String::from_utf8_unchecked(to_vec(value)?) })
 }
 
-pub fn canonicalize(val: &serde_json::Value) -> Result<Vec<u8>, Error> {
+fn canonicalize(val: &serde_json::Value) -> Result<Vec<u8>, Error> {
     let cv = from_value(val)?;
     let mut buf = Vec::new();
     let _ = cv.write(&mut buf);
@@ -38,12 +41,12 @@ pub fn canonicalize(val: &serde_json::Value) -> Result<Vec<u8>, Error> {
 }
 
 enum CanonicalValue {
-    Array(Vec<CanonicalValue>),
-    Bool(bool),
     Null,
+    Bool(bool),
     Number(Number),
-    Object(BTreeMap<String, CanonicalValue>),
     String(String),
+    Array(Vec<CanonicalValue>),
+    Object(BTreeMap<String, CanonicalValue>),
 }
 
 enum Number {
@@ -51,7 +54,7 @@ enum Number {
 }
 
 impl CanonicalValue {
-    fn write(&self, mut buf: &mut Vec<u8>) -> Result<(), String> {
+    fn write(&self, mut buf: &mut Vec<u8>) -> Result<(), Error> {
         match *self {
             CanonicalValue::Null => {
                 buf.extend(b"null");
@@ -65,12 +68,12 @@ impl CanonicalValue {
                 buf.extend(b"false");
                 Ok(())
             }
-            CanonicalValue::Number(Number::I64(n)) => itoa::write(buf, n)
-                .map(|_| ())
-                .map_err(|err| format!("Write error: {}", err)),
+            CanonicalValue::Number(Number::I64(n)) => match itoa::write(buf, n) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(Error::Custom(format!("cannot write number: {}", err))),
+            },
             CanonicalValue::String(ref s) => {
-                let s = serde_json::Value::String(s.clone());
-                let s = serde_json::to_string(&s).map_err(|e| format!("{:?}", e))?;
+                let s = serde_json::to_string(&Value::String(s.clone()))?;
                 buf.extend(s.as_bytes());
                 Ok(())
             }
@@ -95,11 +98,8 @@ impl CanonicalValue {
                         buf.push(b',');
                     }
                     first = false;
-
-                    let k = serde_json::Value::String(k.clone());
-                    let k = serde_json::to_string(&k).map_err(|e| format!("{:?}", e))?;
+                    let k = serde_json::to_string(&Value::String(k.clone()))?;
                     buf.extend(k.as_bytes());
-
                     buf.push(b':');
                     v.write(&mut buf)?;
                 }
@@ -124,6 +124,7 @@ fn from_value(val: &Value) -> Result<CanonicalValue, Error> {
                 )))),
             }
         }
+        Value::String(ref s) => Ok(CanonicalValue::String(s.clone())),
         Value::Array(ref arr) => {
             let mut out = Vec::new();
             for res in arr.iter().map(|v| from_value(v)) {
@@ -138,7 +139,6 @@ fn from_value(val: &Value) -> Result<CanonicalValue, Error> {
             }
             Ok(CanonicalValue::Object(out))
         }
-        Value::String(ref s) => Ok(CanonicalValue::String(s.clone())),
     }
 }
 
