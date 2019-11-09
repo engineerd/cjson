@@ -3,6 +3,8 @@ name = "cjson"
 version = "0.1.0"
 authors = ["Radu M <root@radu.sh>"]
 edition = "2018"
+description = "Canonical JSON serializer"
+license = "MIT"
 
 
 [dependencies]
