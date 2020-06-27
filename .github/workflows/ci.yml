@@ -14,6 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build
+      - name: Set up Go
+        uses: actions/setup-go@v2
         run: cargo build --verbose
-      - name: Run tests
+      - name: Run unit tests
         run: cargo test --verbose
+      - name: Run integration tests
+        run: |
+          export GOPATH=$HOME/go && export GOBIN=$(go env GOPATH)/bin && export PATH=$PATH:$GOPATH && export PATH=$PATH:$GOBIN && mkdir -p $GOBIN
+          go get github.com/technosophos/canonjson
+          ./scripts/integration.sh
