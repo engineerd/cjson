@@ -6,7 +6,6 @@ edition = "2018"
 description = "Canonical JSON serializer"
 license = "MIT"
 
-
 [dependencies]
 serde = "1.0.0"
 serde_derive = "1.0"
