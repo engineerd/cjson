@@ -8,8 +8,8 @@ This is an implementation for a canonical JSON serializer that tries to be
 compliant with [the OLPC minimal specification for canonical JSON][olpc].
 Additionally, the implementation also tries to be fully compatible with the [Go
 canonical JSON implementation][docker/go/canonical] used across the Docker and
-If you find any inconsistencies with the result of the serialization, please
-open an issue.
+Notary ecosystem. If you find any inconsistencies with the result of the
+serialization, please open an issue.
 
 Example - reading a JSON file and printing its canonical representation:
 

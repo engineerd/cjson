@@ -1,11 +1,28 @@
-use serde_json;
-use serde_json::Value;
-use std::collections::BTreeMap;
-use std::io;
+//! A canonical JSON serializer that tries to be
+//! compliant with [the OLPC minimal specification for canonical JSON][olpc].
+//! Additionally, the implementation also tries to be fully compatible with the [Go
+//! canonical JSON implementation][docker/go/canonical] used across the Docker and
+//! Notary ecosystem.
+//! Example - reading a JSON file and printing its canonical representation:
+
+//! ```rust
+//! let res: serde_json::Value =
+//!     serde_json::from_reader(input).expect("cannot deserialize input file");
+
+//! println!(
+//!     "{}",
+//!     cjson::to_string(&res).expect("cannot write canonical JSON")
+//! );
+//! ```
+#![deny(missing_docs)]
+
+use serde_json::{self, Value};
+use std::{collections::BTreeMap, io};
 
 #[cfg(test)]
 mod tests;
 
+/// Serialize the given data structure as canonical JSON into the IO stream.
 pub fn to_writer<W, T: Sized>(mut writer: W, value: &T) -> Result<(), Error>
 where
     W: io::Write,
@@ -17,6 +34,7 @@ where
     Ok(())
 }
 
+/// Serialize the given data structure as a canonical JSON byte vector.
 pub fn to_vec<T: Sized>(value: &T) -> Result<Vec<u8>, Error>
 where
     T: serde::Serialize,
@@ -26,6 +44,7 @@ where
     Ok(writer)
 }
 
+/// Serialize the given data structure as a String of canonical JSON.
 pub fn to_string<T: Sized>(value: &T) -> Result<String, Error>
 where
     T: serde::Serialize,
@@ -142,9 +161,13 @@ fn from_value(val: &Value) -> Result<CanonicalValue, Error> {
     }
 }
 
+/// This enum represents all errors that can be returned when
+/// trying to serialize something as canonical JSON.
 #[derive(Debug)]
 pub enum Error {
+    /// Custom generic error.
     Custom(String),
+    /// IO error.
     Io(io::Error),
 }
 
