@@ -8,8 +8,6 @@ This is an implementation for a canonical JSON serializer that tries to be
 compliant with [the OLPC minimal specification for canonical JSON][olpc].
 Additionally, the implementation also tries to be fully compatible with the [Go
 canonical JSON implementation][docker/go/canonical] used across the Docker and
-Notary ecosystems.
-
 If you find any inconsistencies with the result of the serialization, please
 open an issue.
 
@@ -24,6 +22,9 @@ println!(
     cjson::to_string(&res).expect("cannot write canonical JSON")
 );
 ```
+
+> Note: this crate aims to always be compilable to the `wasm32-unknown-unknown`
+> and `wasm32-wasi` targets.
 
 ### Building and contributing
 

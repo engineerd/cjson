@@ -14,9 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        run: cargo build --verbose
+        run: cargo build && cargo build --target wasm32-unknown-unknown && cargo build --target wasm32-wasi
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test
       - name: Set up Go
         uses: actions/setup-go@v2
       - name: Run integration tests
