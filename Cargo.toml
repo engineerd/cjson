@@ -1,16 +1,17 @@
 [package]
-name = "cjson"
-version = "0.1.1"
-authors = ["Radu M <root@radu.sh>"]
-edition = "2018"
+name        = "cjson"
+version     = "0.1.2"
+authors     = ["Radu M <root@radu.sh>"]
+edition     = "2018"
 description = "Canonical JSON serializer"
-license = "MIT"
+license     = "MIT"
+readme      = "readme.md"
 
 [dependencies]
-serde = "1.0.0"
+itoa         = "0.4.3"
+serde        = "1.0.0"
 serde_derive = "1.0"
-serde_json = "1.0"
-itoa = "0.4.3"
+serde_json   = "1.0"
 
 [dev-dependencies]
 rust-crypto = "^0.2"
