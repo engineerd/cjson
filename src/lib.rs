@@ -4,15 +4,24 @@
 //! canonical JSON implementation][docker/go/canonical] used across the Docker and
 //! Notary ecosystem.
 //! Example - reading a JSON file and printing its canonical representation:
-
+//!
 //! ```rust
+//! let data = r#"
+//! {
+//!     "name": "John Doe",
+//!     "age": 43,
+//!     "phones": [
+//!         "+44 1234567",
+//!         "+44 2345678"
+//!     ]
+//! }"#;
 //! let res: serde_json::Value =
-//!     serde_json::from_reader(input).expect("cannot deserialize input file");
-
-//! println!(
-//!     "{}",
-//!     cjson::to_string(&res).expect("cannot write canonical JSON")
-//! );
+//!     serde_json::from_str(data).expect("cannot deserialize input file");
+//!
+//! let canonical = cjson::to_string(&res).expect("cannot write canonical JSON");
+//! let expected = r#"{"age":43,"name":"John Doe","phones":["+44 1234567","+44 2345678"]}"#;
+//! assert_eq!(canonical, expected);
+//!
 //! ```
 #![deny(missing_docs)]
 
