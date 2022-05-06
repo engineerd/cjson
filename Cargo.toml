@@ -6,6 +6,7 @@ edition     = "2018"
 description = "Canonical JSON serializer"
 license     = "MIT"
 readme      = "readme.md"
+repository  = "https://github.com/engineerd/cjson"
 
 [dependencies]
 itoa         = "0.4.3"
